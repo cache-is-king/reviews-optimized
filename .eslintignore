@@ -1,7 +1,11 @@
 node_modules
 bundle.js
+bundle-prod.js
 dummydata.js
 coverage
 coverage/
 fake_reviews.json
 false
+_data
+sampleData.js
+sample_reviews.js
