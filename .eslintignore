@@ -7,3 +7,5 @@ coverage/
 fake_reviews.json
 false
 _data
+sampleData.js
+sample_reviews.js
