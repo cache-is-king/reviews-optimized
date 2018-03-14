@@ -8,7 +8,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(express.static(__dirname + '/../react/dist'));
+app.use(express.static(`${__dirname}/../react/dist`));
 
 app.get('/restaurants/:id', (request, response) => {
   response.set({ 'Access-Control-Allow-Origin': '*' });

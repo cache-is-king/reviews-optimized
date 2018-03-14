@@ -8,7 +8,7 @@ const getReviews = () => {
   const randomLength = Math.ceil(Math.random() * 10) + 3;
   const reviewsArray = [];
   // looping up to the random length
-  for (let i = 1; i < randomLength; i++) {
+  for (let i = 1; i < randomLength; i += 1) {
     // random index generator
     const randomIdx = Math.floor(Math.random() * 100);
     // push random comments into array using randomIdx
@@ -31,7 +31,7 @@ restaurantsData.forEach((restaurant) => {
     if (error) {
       throw error;
     } else {
-      counter++;
+      counter += 1;
       if (counter === 119) {
         mongoose.disconnect();
       }
