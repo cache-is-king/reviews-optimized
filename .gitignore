@@ -6,3 +6,5 @@ coverage
 coverage/
 false
 login.js
+restaurants.data.js
+_data
