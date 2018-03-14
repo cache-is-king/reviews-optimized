@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config();
 
-mongoose.connect('mongodb://Miken:1234@ds263138.mlab.com:63138/restaurants_reviews');
+const MONGO_URL = process.env.MONGO_URL ? process.env.MONGO_URL : 'mongodb://localhost/silverspoon_reviews';
+
+mongoose.connect(MONGO_URL);
 
 const restaurantSchema = mongoose.Schema({
   restaurantId: Number,
