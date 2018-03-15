@@ -5,7 +5,7 @@ dotenv.config();
 
 const MONGO_URL = process.env.MONGO_URL ? process.env.MONGO_URL : 'mongodb://localhost/silverspoon_reviews';
 
-mongoose.connect(MONGO_URL, { keepAlive: 600 }, (err) => {
+mongoose.connect(MONGO_URL, (err) => {
   if (err) console.log('Mongo Error', err);
 });
 
