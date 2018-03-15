@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 const MONGO_URL = process.env.MONGO_URL ? process.env.MONGO_URL : 'mongodb://localhost/silverspoon_reviews';
@@ -23,7 +24,7 @@ const restaurantSchema = mongoose.Schema({
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
 function insertOne(restaurant, callback) {
-  Restaurant.create(restaurant, callback);
+  return Restaurant.create(restaurant, callback);
 }
 
 function findByRestaurantId(id, callback) {
@@ -38,3 +39,4 @@ function findByRestaurantId(id, callback) {
 
 module.exports.insertOne = insertOne;
 module.exports.findByRestaurantId = findByRestaurantId;
+module.exports.mongoose = mongoose;
