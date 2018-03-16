@@ -33,14 +33,14 @@ function findByRestaurantId(id) {
   // Restaurant.find({ restaurantId: id }).exec(callback);
 
   // promise version
-  return Restaurant.find({ restaurantId: id });
+  return Restaurant.find({ restaurantId: id }).limit(1).lean();
 }
 
 function findOneByRestaurantId(id) {
   // Restaurant.findOne({ restaurantId: id }).exec(callback);
 
   // promise version
-  return Restaurant.findOne({ restaurantId: id });
+  return Restaurant.findOne({ restaurantId: id }).lean();
 }
 
 module.exports.insertOne = insertOne;
