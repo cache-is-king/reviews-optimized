@@ -4,5 +4,8 @@ module.exports = {
     "jest": true,
     "browser": true,
     "node": true
+  },
+  "rules": {
+    "no-await-in-loop": 1,
   }
 };

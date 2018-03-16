@@ -5,7 +5,9 @@ dotenv.config();
 
 const MONGO_URL = process.env.MONGO_URL ? process.env.MONGO_URL : 'mongodb://localhost/silverspoon_reviews';
 
-mongoose.connect(MONGO_URL);
+mongoose.connect(MONGO_URL, (err) => {
+  if (err) console.log('Mongo Error', err);
+});
 
 const restaurantSchema = mongoose.Schema({
   restaurantId: Number,
@@ -24,19 +26,25 @@ const restaurantSchema = mongoose.Schema({
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
 function insertOne(restaurant, callback) {
-  return Restaurant.create(restaurant, callback);
+  Restaurant.create(restaurant, callback);
 }
 
-function findByRestaurantId(id, callback) {
-  Restaurant.find({ restaurantId: id }).exec((err, results) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, results);
-    }
-  });
+function findByRestaurantId(id) {
+  // Restaurant.find({ restaurantId: id }).exec(callback);
+
+  // promise version
+  return Restaurant.find({ restaurantId: id }).limit(1).lean();
+}
+
+function findOneByRestaurantId(id) {
+  // Restaurant.findOne({ restaurantId: id }).exec(callback);
+
+  // promise version
+  return Restaurant.findOne({ restaurantId: id }).lean();
 }
 
 module.exports.insertOne = insertOne;
 module.exports.findByRestaurantId = findByRestaurantId;
+module.exports.findOneByRestaurantId = findOneByRestaurantId;
 module.exports.mongoose = mongoose;
+module.exports.Restaurant = Restaurant;
