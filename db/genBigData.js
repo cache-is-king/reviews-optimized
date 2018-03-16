@@ -6,16 +6,18 @@ const capitalize = str => str.split(' ')
   .map(word => word[0].toUpperCase() + word.slice(1))
   .join(' ');
 
+const randomInt = (min, max) => min + Math.floor(Math.random() * (max - min));
+
 const genRestName = () => {
   const randomFn = {
-    0: () => (faker.lorem.words(1 + Math.floor(3 * Math.random()))),
+    0: () => (faker.lorem.words(randomInt(1, 4))),
     1: () => (`The ${faker.lorem.word()}`),
     2: () => (`${faker.lorem.word()} & ${faker.lorem.word()}`),
-    3: () => (`${faker.name.firstName()}'s ${faker.lorem.words(1 + Math.floor(2 * Math.random()))}`),
-    4: () => (`${faker.commerce.productAdjective()} ${faker.lorem.words(1 + Math.floor(2 * Math.random()))}`),
+    3: () => (`${faker.name.firstName()}'s ${faker.lorem.words(randomInt(1, 3))}`),
+    4: () => (`${faker.commerce.productAdjective()} ${faker.lorem.words(randomInt(1, 3))}`),
   };
 
-  return randomFn[Math.floor(5 * Math.random())]();
+  return randomFn[randomInt(0, 5)]();
 };
 
 const generateReviews = (numReviews) => {
@@ -25,9 +27,9 @@ const generateReviews = (numReviews) => {
     output.push({
       // id: i,
       username: faker.internet.userName(),
-      city: faker.lorem.words(1 + Math.floor(Math.random * 3)),
+      city: faker.lorem.words(randomInt(1, 4)),
       dinedDate: faker.date.past(0.25).toISOString().slice(0, 10),
-      rating: Math.floor(1 + (5 * Math.random())),
+      rating: randomInt(1, 6),
       review: faker.lorem.text(),
     });
   }
@@ -38,13 +40,13 @@ let totSaved = 0;
 // size of bloomfilter, per https://hur.st/bloomfilter?n=10000000&p=1.0E-6
 const bloom = new BloomFilter(287551752, 20);
 let output = [];
-const totalNum = 10e6;
+const totalNum = 1e6;
 let i = 0;
 
 const handleMap = (item, j) => ({
   restaurantId: totSaved + j,
   restaurantName: item,
-  restaurantReviews: generateReviews(Math.floor(5 * Math.random())),
+  restaurantReviews: generateReviews(randomInt(0, 5)),
 });
 
 while (totSaved <= totalNum) {
