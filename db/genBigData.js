@@ -36,38 +36,86 @@ const generateReviews = (numReviews) => {
   return output;
 };
 
-let totSaved = 0;
-// size of bloomfilter, per https://hur.st/bloomfilter?n=10000000&p=1.0E-6
-const bloom = new BloomFilter(287551752, 20);
-let output = [];
-const totalNum = 1e6;
-let i = 0;
+const genJSON = (totalNum = 1e6) => {
+  // size of bloomfilter, per https://hur.st/bloomfilter?n=10000000&p=1.0E-6
+  const bloom = new BloomFilter(287551752, 20);
+  let output = [];
+  let totSaved = 0;
+  let i = 0;
 
-const handleMap = (item, j) => ({
-  restaurantId: totSaved + j,
-  restaurantName: item,
-  restaurantReviews: generateReviews(randomInt(0, 5)),
-});
+  console.log(`Generating ${totalNum} json objects`);
 
-while (totSaved <= totalNum) {
-  const restName = capitalize(genRestName());
-  if (!bloom.test(restName)) {
-    // restaurant not in bloom filter
-    bloom.add(restName);
-    output.push(restName);
-    if (i >= totalNum || (i !== 0 && i % 250000 === 0)) {
-      // write all objects that have not yet been written to disk
-      const restaurantObjects = output.map(handleMap);
+  const handleMap = (item, j) => ({
+    restaurantId: totSaved + j,
+    restaurantName: item,
+    restaurantReviews: generateReviews(randomInt(0, 5)),
+  });
 
-      totSaved += output.length;
+  while (totSaved <= totalNum) {
+    const restName = capitalize(genRestName());
+    if (!bloom.test(restName)) {
+      // restaurant not in bloom filter
+      bloom.add(restName);
+      output.push(restName);
+      if (i >= totalNum || (i !== 0 && i % 250000 === 0)) {
+        // write all objects that have not yet been written to disk
+        const restaurantObjects = output.map(handleMap);
 
-      console.log(`Writing ${output.length} keys to [output-${i}.js]`);
+        totSaved += output.length;
 
-      // set from false to true for those keys
-      const outputString = restaurantObjects.map(JSON.stringify).join('\n');
-      fs.writeFileSync(`./_data/output-${i}.js`, outputString);
-      output = [];
+        console.log(`Writing ${output.length} keys to [output-${i}.js]`);
+
+        // set from false to true for those keys
+        const outputString = restaurantObjects.map(JSON.stringify).join('\n');
+        fs.writeFileSync(`./_data/output-${i}.js`, outputString);
+        output = [];
+      }
+      i += 1;
     }
-    i += 1;
   }
+};
+
+const genTSV = (totalNum = 1e6) => {
+  // size of bloomfilter, per https://hur.st/bloomfilter?n=10000000&p=1.0E-6
+  // let totSaved = 0;
+  // const bloom = new BloomFilter(287551752, 20);
+  // let output = [];
+  // let i = 0;
+
+  console.log(`Generating ${totalNum} tsv lines`);
+
+  // while (totSaved <= totalNum) {
+  //   const restName = capitalize(genRestName());
+  //   if (!bloom.test(restName)) {
+  //     // restaurant not in bloom filter
+  //     bloom.add(restName);
+  //     output.push(restName);
+  //     if (i >= totalNum || (i !== 0 && i % 250000 === 0)) {
+  //       // write all objects that have not yet been written to disk
+  //       const restaurantObjects = output.map(handleMap);
+
+  //       totSaved += output.length;
+
+  //       console.log(`Writing ${output.length} keys to [output-${i}.js]`);
+
+  //       // set from false to true for those keys
+  //       const outputString = restaurantObjects.map(JSON.stringify).join('\n');
+  //       fs.writeFileSync(`./_data/output-${i}.js`, outputString);
+  //       output = [];
+  //     }
+  //     i += 1;
+  //   }
+  // }
+};
+
+// pass JSON or TSV as argument, e.g. node genBigData.js JSON
+if (process.argv[2] !== 'json' && process.argv[2] !== 'tsv') {
+  console.log(`Usage: node ${__filename.slice(__dirname.length + 1)} (json|tsv)`);
+  process.exit();
+}
+
+if (process.argv[2] === 'json') {
+  genJSON();
+} else {
+  genTSV();
 }
