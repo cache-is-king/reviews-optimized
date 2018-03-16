@@ -18,14 +18,14 @@ const genRestName = () => {
   return randomFn[Math.floor(5 * Math.random())]();
 };
 
-const generateReviews = (chunkSize) => {
+const generateReviews = (numReviews) => {
   const output = [];
 
-  for (let i = 0; i < chunkSize; i += 1) {
+  for (let i = 0; i < numReviews; i += 1) {
     output.push({
       // id: i,
       username: faker.internet.userName(),
-      city: faker.address.city(),
+      city: faker.lorem.words(1 + Math.floor(Math.random * 3)),
       dinedDate: faker.date.past(0.25).toISOString().slice(0, 10),
       rating: Math.floor(1 + (5 * Math.random())),
       review: faker.lorem.text(),
@@ -38,7 +38,7 @@ let totSaved = 0;
 // size of bloomfilter, per https://hur.st/bloomfilter?n=10000000&p=1.0E-6
 const bloom = new BloomFilter(287551752, 20);
 let output = [];
-const totalNum = 10000000;
+const totalNum = 10e6;
 let i = 0;
 
 const handleMap = (item, j) => ({
@@ -62,7 +62,6 @@ while (totSaved <= totalNum) {
       console.log(`Writing ${output.length} keys to [output-${i}.js]`);
 
       // set from false to true for those keys
-      // const jsonString = JSON.stringify(restaurantObjects);
       const outputString = restaurantObjects.map(JSON.stringify).join('\n');
       fs.writeFileSync(`./_data/output-${i}.js`, outputString);
       output = [];
