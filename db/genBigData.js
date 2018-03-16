@@ -110,12 +110,12 @@ const genTSV = (totalNum = 1e6) => {
 
 // pass JSON or TSV as argument, e.g. node genBigData.js JSON
 if (process.argv[2] !== 'json' && process.argv[2] !== 'tsv') {
-  console.log(`Usage: node ${__filename.slice(__dirname.length + 1)} (json|tsv)`);
+  console.log(`Usage: node ${__filename.slice(__dirname.length + 1)} (json|tsv) <number_of_restaurants>`);
   process.exit();
 }
 
 if (process.argv[2] === 'json') {
-  genJSON();
+  genJSON(Number(process.argv[3]));
 } else {
-  genTSV();
+  genTSV(Number(process.argv[3]));
 }
