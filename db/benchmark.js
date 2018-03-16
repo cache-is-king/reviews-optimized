@@ -10,10 +10,10 @@ const testMongoDB = async (totRuns = 1) => {
     console.log('  Searching for:', needle);
 
     console.time('findByRestaurantId');
-    const data = await db.findOneByRestaurantId(needle);
+    const data = await db.findByRestaurantId(needle);
     console.timeEnd('findByRestaurantId');
 
-    console.log('  Found:', data.restaurantName);
+    console.log('  Found:', data[0].restaurantName);
   }
   if (totRuns > 0) {
     db.mongoose.disconnect();
@@ -28,31 +28,32 @@ const testMongoDBName = async (needles) => {
     console.log('  Searching for:', needle);
 
     console.time('findByRestaurantId');
-    const data = await db.Restaurant.findOne({ restaurantName: needle });
+    // const data = await db.Restaurant.findOne({ restaurantName: needle });
+    const data = await db.Restaurant.find({ restaurantName: needle }).limit(1).lean();
     console.timeEnd('findByRestaurantId');
 
-    console.log('  Found:', data.restaurantName);
+    console.log('  Found:', data[0].restaurantName);
   }
 
   db.mongoose.disconnect();
 };
 
 
-// testMongoDB(10);
+testMongoDB(10);
 
-testMongoDB(0);
+// testMongoDB(0);
 
-// testMongoDBName([]);
+testMongoDBName([]);
 
-testMongoDBName([
-  'Edmond\'s Voluptas',
-  'Sofia\'s Doloribus Cum',
-  'Zander\'s Dolores Sit',
-  'Zaria\'s Eum Error',
-  'Lavina\'s Esse Vel',
-  'Nemo Magni Vitae',
-  'Jacinthe\'s Quo Dolore',
-  'Elian\'s Eaque Ratione',
-  'Eryn\'s Totam Incidunt',
-  'Jena\'s Voluptatem Aut',
-]);
+// testMongoDBName([
+//   'Edmond\'s Voluptas',
+//   'Sofia\'s Doloribus Cum',
+//   'Zander\'s Dolores Sit',
+//   'Zaria\'s Eum Error',
+//   'Lavina\'s Esse Vel',
+//   'Nemo Magni Vitae',
+//   'Jacinthe\'s Quo Dolore',
+//   'Elian\'s Eaque Ratione',
+//   'Eryn\'s Totam Incidunt',
+//   'Jena\'s Voluptatem Aut',
+// ]);
