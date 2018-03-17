@@ -25,8 +25,8 @@ const restaurantSchema = mongoose.Schema({
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
-function insertOne(restaurant, cb) {
-  Restaurant.create(restaurant, cb);
+function insertOne(restaurant) {
+  return Restaurant.create(restaurant);
 }
 
 function findByRestaurantId(id) {
