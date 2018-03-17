@@ -27,14 +27,14 @@ restaurantsData.forEach((restaurant) => {
     restaurantReviews: getReviews(),
   };
   // save each one into db
-  db.insertOne(eachRestaurant, (error) => {
-    if (error) {
-      throw error;
-    } else {
+  db.insertOne(eachRestaurant)
+    .then(() => {
       counter += 1;
       if (counter === 119) {
         mongoose.disconnect();
       }
-    }
-  });
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
