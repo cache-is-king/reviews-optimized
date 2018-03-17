@@ -26,25 +26,18 @@ const restaurantSchema = mongoose.Schema({
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
 function insertOne(restaurant, callback) {
-  Restaurant.create(restaurant, callback);
+  return Restaurant.create(restaurant, callback);
 }
 
 function findByRestaurantId(id) {
-  // Restaurant.find({ restaurantId: id }).exec(callback);
-
-  // promise version
   return Restaurant.find({ restaurantId: id }).limit(1).lean();
 }
 
-function findOneByRestaurantId(id) {
-  // Restaurant.findOne({ restaurantId: id }).exec(callback);
-
-  // promise version
-  return Restaurant.findOne({ restaurantId: id }).lean();
+function findByRestaurantName(name) {
+  return Restaurant.find({ restaurantName: name }).limit(1).lean();
 }
 
 module.exports.insertOne = insertOne;
 module.exports.findByRestaurantId = findByRestaurantId;
-module.exports.findOneByRestaurantId = findOneByRestaurantId;
+module.exports.findByRestaurantName = findByRestaurantName;
 module.exports.mongoose = mongoose;
-module.exports.Restaurant = Restaurant;
