@@ -17,7 +17,7 @@ const genRestName = () => {
     4: () => (`${faker.commerce.productAdjective()} ${faker.lorem.words(randomInt(1, 3))}`),
   };
 
-  return randomFn[randomInt(0, 5)]();
+  return capitalize(randomFn[randomInt(0, 5)]());
 };
 
 const generateReviews = (numReviews) => {
@@ -52,7 +52,7 @@ const genJSON = (totalNum = 1e6) => {
   });
 
   while (totSaved <= totalNum) {
-    const restName = capitalize(genRestName());
+    const restName = genRestName();
     if (!bloom.test(restName)) {
       // restaurant not in bloom filter
       bloom.add(restName);
@@ -77,38 +77,64 @@ const genJSON = (totalNum = 1e6) => {
 
 const genTSV = (totalNum = 1e6) => {
   // size of bloomfilter, per https://hur.st/bloomfilter?n=10000000&p=1.0E-6
-  // let totSaved = 0;
-  // const bloom = new BloomFilter(287551752, 20);
-  // let output = [];
-  // let i = 0;
+  const bloom = new BloomFilter(287551752, 20);
+  let output = [];
+  let totSaved = 0;
+  let i = 0;
 
   console.log(`Generating ${totalNum} tsv lines`);
 
-  // while (totSaved <= totalNum) {
-  //   const restName = capitalize(genRestName());
-  //   if (!bloom.test(restName)) {
-  //     // restaurant not in bloom filter
-  //     bloom.add(restName);
-  //     output.push(restName);
-  //     if (i >= totalNum || (i !== 0 && i % 250000 === 0)) {
-  //       // write all objects that have not yet been written to disk
-  //       const restaurantObjects = output.map(handleMap);
+  while (totSaved <= totalNum) {
+    const restName = genRestName();
+    if (!bloom.test(restName)) {
+      // restaurant not in bloom filter (i.e. unique)
+      bloom.add(restName);
+      output.push(`${i}\t${restName}`);
+      if (i >= totalNum || (i !== 0 && i % 1000000 === 0)) {
+        // write all objects that have not yet been written to disk
+        totSaved += output.length;
 
-  //       totSaved += output.length;
+        console.log(`  Writing ${output.length} keys to [rest-${i}.tsv]`);
 
-  //       console.log(`Writing ${output.length} keys to [output-${i}.js]`);
+        const outputString = output.join('\n');
+        fs.writeFileSync(`./_data/rest-${i}.tsv`, `${outputString}\n`);
+        output = [];
+      }
+      i += 1;
+    }
+  }
 
-  //       // set from false to true for those keys
-  //       const outputString = restaurantObjects.map(JSON.stringify).join('\n');
-  //       fs.writeFileSync(`./_data/output-${i}.js`, outputString);
-  //       output = [];
-  //     }
-  //     i += 1;
-  //   }
-  // }
+  // generate all reviews
+  totSaved = 0;
+  i = 0;
+  output = [];
+  while (totSaved <= 2 * totalNum) {
+    const username = faker.internet.userName();
+    const city = faker.lorem.words(randomInt(1, 4));
+    const dinedDate = faker.date.past(0.25).toISOString().slice(0, 10);
+    const rating = randomInt(1, 6);
+    const restaurantId = randomInt(0, totalNum);
+    let review = faker.lorem.text();
+    review = review.replace(/(\r\n|\n|\r)/gm, '\\n');
+
+    const line = `${username}\t${city}\t${dinedDate}\t${rating}\t${restaurantId}\t${review}`;
+    output.push(line);
+
+    if (i >= 2 * totalNum || (i !== 0 && i % 500000 === 0)) {
+      // write all objects that have not yet been written to disk
+      totSaved += output.length;
+
+      console.log(`  Writing ${output.length} keys to [reviews-${i}.tsv]`);
+
+      const outputString = output.join('\n');
+      fs.writeFileSync(`./_data/reviews-${i}.tsv`, `${outputString}\n`);
+      output = [];
+    }
+    i += 1;
+  }
 };
 
-// pass JSON or TSV as argument, e.g. node genBigData.js JSON
+// pass json or tsv as argument, along with # of records e.g. node genBigData.js json 1000
 if (process.argv[2] !== 'json' && process.argv[2] !== 'tsv') {
   console.log(`Usage: node ${__filename.slice(__dirname.length + 1)} (json|tsv) <number_of_restaurants>`);
   process.exit();
