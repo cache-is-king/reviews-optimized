@@ -15,30 +15,29 @@ client.on('end', () => {
 
 client.connect();
 
-const findRestaurantById = id => client.query('SELECT * FROM restaurants WHERE restaurantid=$1', [id]);
+const findRestaurantById = id => client.query('SELECT * FROM restaurants WHERE restaurantid=$1 LIMIT 1', [id]);
 
-const findRestaurantByName = name => client.query('SELECT * from restaurants WHERE restaurantname=$1', [name]);
+const findRestaurantByName = name => client.query('SELECT * from restaurants WHERE restaurantname=$1 LIMIT 1', [name]);
 
 const findReviewsById = id => client.query('SELECT * FROM reviews WHERE restaurantid=$1', [id]);
 
 const findReviewsByName = name => client.query('SELECT * FROM reviews WHERE restaurantid=(SELECT restaurantid FROM restaurants WHERE restaurantname=$1 LIMIT 1)', [name]);
 
 // aggregate the data and return as JSON object to mimic Mongo
-// const findByRestaurantId = (id) =>{};
-//   return Promise.all([
-//     findRestaurantById(id),
-//     findReviewsById(id)])
-//     .then(([restaurantInfo, reviews]) => {
-//       return {
-//         restaurantName: restaurantInfo.restaurantName,
-//         restaurantReviews: reviews.rows.map(row => {
-
-//         })
-//       }
-//     })
-// }
-
-// const findByRestaurantName = (name) {};
+const findByRestaurantId = id => Promise.all([
+  findRestaurantById(id),
+  findReviewsById(id)])
+  .then(([restaurantInfo, reviews]) => ({
+    restaurantId: restaurantInfo.rows[0].restaurantid,
+    restaurantName: restaurantInfo.rows[0].restaurantname,
+    restaurantReviews: reviews.rows.map(row => ({
+      username: row.username,
+      city: row.city,
+      dinedDate: row.dineddate.toISOString().slice(0, 10),
+      rating: row.rating,
+      review: row.review,
+    })),
+  }));
 
 
 module.exports = {
@@ -47,4 +46,5 @@ module.exports = {
   findRestaurantByName,
   findReviewsById,
   findReviewsByName,
+  findByRestaurantId,
 };
