@@ -8,39 +8,32 @@ const done = () => {
   postgres.client.end();
 };
 
-const testMongoLoad = (totRuns = 1) => {
-  console.log('MongoDB load test', totRuns, 'iterations');
+const testLoad = (dbFunction, label, numRuns = 1000) => {
+  console.log(`${label} load test ${numRuns} queries`);
   const promises = [];
-  console.time('  MongofindByRestaurantId');
-  for (let i = 0; i < totRuns; i += 1) {
-    const needle = Math.floor(TOT_DATA_SIZE * Math.random());
-    promises.push(mongo.findByRestaurantId(needle));
-  }
-  Promise.all(promises)
-    .then((results) => {
-      console.timeEnd('  MongofindByRestaurantId');
-      console.log('Result sanity check', results[0]);
-      done();
-    });
-};
-
-const testPGLoad = (numRuns = 1000) => {
-  console.log(`PostgreSQL load test ${numRuns} iterations`);
-  const promises = [];
-  console.time('  PostgresfindByRestaurantId');
+  console.time('  findByRestaurantId');
   for (let i = 0; i < numRuns; i += 1) {
-    promises.push(postgres.findByRestaurantId(Math.floor(TOT_DATA_SIZE * Math.random())));
+    promises.push(dbFunction(Math.floor(TOT_DATA_SIZE * Math.random())));
   }
-
   Promise.all(promises)
     .then((results) => {
-      console.timeEnd('  PostgresfindByRestaurantId');
+      console.timeEnd('  findByRestaurantId');
       console.log('Result sanity check', results[0]);
       done();
     });
 };
 
-const numRuns = Number(process.argv[2]);
-testMongoLoad(numRuns);
-// testPGLoad(numRuns);
-console.log(testPGLoad);
+const fnDict = {
+  mongo: mongo.findByRestaurantId,
+  pg: postgres.findByRestaurantId,
+};
+
+const numRuns = Number(process.argv[3]);
+const db = process.argv[2];
+
+if (db !== 'mongo' && db !== 'pg') {
+  console.log(`Usage: node ${__filename.slice(__dirname.length + 1)} (mongo|pg) <number of queries>`);
+  process.exit();
+}
+
+testLoad(fnDict[db], db, numRuns);
