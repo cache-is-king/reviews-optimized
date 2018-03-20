@@ -75,6 +75,13 @@ const testPGId = async (numRuns = 1000) => {
   }
   console.timeEnd('  findReviewsById');
 
+  console.log(`PostgreSQL findByRestaurantId test ${numRuns} iterations`);
+  console.time('  findByRestaurantId');
+  for (let i = 0; i < numRuns; i += 1) {
+    await postgres.findByRestaurantId(Math.floor(TOT_DATA_SIZE * Math.random()));
+  }
+  console.timeEnd('  findByRestaurantId');
+
   done();
 };
 
