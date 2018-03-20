@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/thesilverspoon/reviews-component#readme",
   "dependencies": {
+    "artillery": "^1.6.0-14",
     "bloomfilter": "0.0.16",
     "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",

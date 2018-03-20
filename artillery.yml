@@ -1,0 +1,16 @@
+config:
+  target: 'http://localhost:8081'
+  payload:
+    path: "./_data/attack.csv"
+    fields:
+      - "id"
+  phases:
+    -
+      duration: 60
+      arrivalCount: 6000
+scenarios:
+  - flow:
+    - loop:
+      - get:
+          url: "/restaurants/{{id}}"
+      count: 10

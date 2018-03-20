@@ -1,13 +1,8 @@
 const nr = require('newrelic');
 const express = require('express');
-// const bodyParser = require('body-parser');
 const db = require('../db/mongodb');
-// const fs = require('fs');
-// const _ = require('underscore');
 
 const app = express();
-
-// app.use(bodyParser.json());
 
 app.use(express.static(`${__dirname}/../react/dist`));
 
