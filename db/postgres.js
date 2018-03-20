@@ -3,7 +3,10 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const client = new pg.Client();
+// pg.defaults.poolSize = 25;
+
+// const client = new pg.Client();
+const client = new pg.Pool();
 
 client.on('error', (err) => {
   console.log('Postgres error', err);
@@ -27,7 +30,7 @@ const findReviewsByName = name => client.query('SELECT * FROM reviews WHERE rest
 const findByRestaurantId = id => Promise.all([
   findRestaurantById(id),
   findReviewsById(id)])
-  .then(([restaurantInfo, reviews]) => ({
+  .then(([restaurantInfo, reviews]) => ([{
     restaurantId: restaurantInfo.rows[0].restaurantid,
     restaurantName: restaurantInfo.rows[0].restaurantname,
     restaurantReviews: reviews.rows.map(row => ({
@@ -37,10 +40,11 @@ const findByRestaurantId = id => Promise.all([
       rating: row.rating,
       review: row.review,
     })),
-  }));
+  }]));
 
 
 module.exports = {
+  pg,
   client,
   findRestaurantById,
   findRestaurantByName,
