@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
-    "webpack": "webpack -d --watch",
     "test": "jest",
     "coverage": "jest --coverage",
     "seed-db": "node seed.js",
+    "load": "./node_modules/.bin/artillery run artillery.yml",
     "build": "./node_modules/.bin/webpack --config ./webpack.prod.config.js"
   },
   "repository": {
@@ -24,6 +24,7 @@
   "dependencies": {
     "artillery": "^1.6.0-14",
     "bloomfilter": "0.0.16",
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
     "dotenv-webpack": "^1.5.5",
@@ -38,6 +39,7 @@
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "redis": "^2.8.0",
     "sinon": "^4.4.2",
     "underscore": "^1.8.3"
   },
