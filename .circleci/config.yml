@@ -23,7 +23,8 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
       - run: npm install
-      - run: npm run seed-db    
+      - run: npm run build
+      - run: npm run seed-db
 
       - save_cache:
           paths:
