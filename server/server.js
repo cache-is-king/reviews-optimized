@@ -1,7 +1,12 @@
 const nr = require('newrelic');
 const fs = require('fs');
 const http = require('http');
+const redis = require('redis');
+const bluebird = require('bluebird');
 const db = require('../db/mongodb');
+
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
 
 const port = process.env.PORT || 8081;
 
@@ -22,20 +27,36 @@ const mimeTypes = {
   '/bundle-prod.js': 'application/javascript',
 };
 
+const client = redis.createClient();
+
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url.startsWith('/restaurants')) {
     const id = Number(req.url.split('/')[2]);
-    db.findByRestaurantId(id)
-      .then((results) => {
-        res.writeHead(200, {
-          'Content-Type': 'application/json',
-        });
-        res.end(JSON.stringify(results));
-      })
-      .catch((err) => {
-        console.log('[ERROR]', err.message);
-        res.writeHead(500);
-        res.end();
+    client.getAsync(id)
+      .then((result) => {
+        if (result === null) {
+          // console.log(`  ${id} resolves to null, getting from DB...`);
+          db.findByRestaurantId(id)
+            .then((results) => {
+              res.writeHead(200, {
+                'Content-Type': 'application/json',
+              });
+              const jsonString = JSON.stringify(results);
+              res.end(jsonString);
+              client.set(id, jsonString, 'EX', 90);
+            })
+            .catch((err) => {
+              console.log('[ERROR]', err.message);
+              res.writeHead(500);
+              res.end();
+            });
+        } else {
+          res.writeHead(200, {
+            'Content-Type': 'application/json',
+          });
+          // console.log(`  ${id} resolves to ${result}`);
+          res.end(result);
+        }
       });
   } else if (['/', '/index.html', '/reviews.css', '/bundle-prod.js'].includes(req.url)) {
     res.writeHead(200, {
