@@ -1,12 +1,8 @@
+const nr = require('newrelic');
 const express = require('express');
-// const bodyParser = require('body-parser');
 const db = require('../db/mongodb');
-// const fs = require('fs');
-// const _ = require('underscore');
 
 const app = express();
-
-// app.use(bodyParser.json());
 
 app.use(express.static(`${__dirname}/../react/dist`));
 
@@ -24,6 +20,9 @@ app.get('/restaurants/:id', (request, response) => {
 
 const port = process.env.PORT || 8081;
 
-app.listen(port, () => { console.log(`Server Up on port: ${port}`); });
+app.listen(port, () => {
+  console.log(nr);
+  console.log(`Server Up on port: ${port}`);
+});
 
 module.exports = app;
