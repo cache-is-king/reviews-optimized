@@ -53,3 +53,5 @@ server.listen(port, () => {
   console.log(nr);
   console.log('Server listening on', port);
 });
+
+module.exports = server;
