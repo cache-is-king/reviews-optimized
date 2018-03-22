@@ -30,6 +30,7 @@ const mimeTypes = {
 const client = redis.createClient();
 
 const server = http.createServer((req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'GET' && req.url.startsWith('/restaurants')) {
     const id = Number(req.url.split('/')[2]);
     client.getAsync(id)
