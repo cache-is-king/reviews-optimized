@@ -16,9 +16,15 @@ module.exports = {
         test: /\.jsx?$/,
         use: {
           loader: 'babel-loader',
+          options: {
+            presets: ['env', 'react'],
+          },
         },
       },
     ],
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'],
   },
 };
 
