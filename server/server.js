@@ -1,6 +1,8 @@
 const nr = require('newrelic');
 const fs = require('fs');
 const http = require('http');
+const path = require('path');
+const mime = require('mime-types');
 const redis = require('redis');
 const bluebird = require('bluebird');
 const db = require('../db/mongodb');
@@ -10,28 +12,17 @@ bluebird.promisifyAll(redis.Multi.prototype);
 
 const port = process.env.PORT || 8081;
 
-const htmlFile = fs.readFileSync('./react/dist/index.html', 'utf8');
-const cssFile = fs.readFileSync('./react/dist/reviews.css', 'utf8');
-const bundleFile = fs.readFileSync('./react/dist/bundle-prod.js', 'utf8');
-
-const fileCache = {
-  'index.html': htmlFile,
-  'reviews.css': cssFile,
-  'bundle-prod.js': bundleFile,
-};
-
-const mimeTypes = {
-  '/': 'text/html',
-  '/index.html': 'text/html',
-  '/reviews.css': 'text/css',
-  '/bundle-prod.js': 'application/javascript',
-};
-
 const client = redis.createClient();
+
+const statistics = {
+  cacheHit: 0,
+  cacheMiss: 0,
+};
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'GET' && req.url.startsWith('/restaurants')) {
+    // REST request
     const id = Number(req.url.split('/')[2]);
     client.getAsync(id)
       .then((result) => {
@@ -49,31 +40,66 @@ const server = http.createServer((req, res) => {
             .catch((err) => {
               console.log('[ERROR]', err.message);
               res.writeHead(500);
-              res.end();
+              res.end('Internal Server Error');
             });
+          statistics.cacheMiss += 1;
         } else {
           res.writeHead(200, {
             'Content-Type': 'application/json',
           });
           // console.log(`  ${id} resolves to ${result}`);
           res.end(result);
+          statistics.cacheHit += 1;
         }
       });
-  } else if (['/', '/index.html', '/reviews.css', '/bundle-prod.js'].includes(req.url)) {
-    res.writeHead(200, {
-      'Content-Type': mimeTypes[req.url],
-    });
-    const output = req.url === '/' ? fileCache['index.html'] : fileCache[req.url.slice(1)];
-    res.end(output);
   } else {
-    res.writeHead(404);
-    res.end();
+    // regular filename
+    const reqFile = req.url.slice(1) !== '' ? req.url.slice(1) : 'index.html';
+    const filename = path.join(__dirname, '..', 'react', 'dist', reqFile);
+
+    // check to see if in redis
+    client.getAsync(filename)
+      .then((results) => {
+        if (results === null) {
+          // if not in redis,
+
+          fs.readFile(filename, (err, data) => {
+            if (err) {
+              console.log(err);
+              res.statusCode = 404;
+              res.end('404 Not Found');
+            } else {
+              res.writeHead(200, {
+                'Content-Type': mime.lookup(filename),
+              });
+              res.end(data);
+              client.set(filename, data, 'EX', 600); // cache for 10 mins
+            }
+          });
+          statistics.cacheMiss += 1;
+        } else {
+          // if in redis,
+          res.writeHead(200, {
+            'Content-Type': mime.lookup(filename),
+          });
+          res.end(results);
+          statistics.cacheHit += 1;
+        }
+      });
   }
 });
 
 server.listen(port, () => {
   console.log('NewRelic', nr.agent.config.license_key.slice(0, 10), '...');
   console.log('Server listening on', port);
+});
+
+process.on('SIGINT', () => {
+  const total = Math.max(1, statistics.cacheHit + statistics.cacheMiss);
+  console.log('Redis hits: %', (100 * (statistics.cacheHit / total)).toFixed(1));
+  console.log('Redis misses: %', (100 * (statistics.cacheMiss / total)).toFixed(1));
+  console.log('Total lookups:', total);
+  process.exit();
 });
 
 module.exports = server;
