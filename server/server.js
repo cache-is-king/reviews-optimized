@@ -72,7 +72,7 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(nr);
+  console.log('NewRelic', nr.agent.config.license_key.slice(0, 10), '...');
   console.log('Server listening on', port);
 });
 
