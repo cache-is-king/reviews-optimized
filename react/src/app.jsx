@@ -1,7 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import $ from 'jquery';
-import OverallRatings from './overallRatings.jsx';
-import Restaurants from './restaurants.jsx';
+import OverallRatings from './overallRatings';
+import Restaurants from './restaurants';
+
 
 class App extends React.Component {
   constructor(props) {
@@ -18,13 +20,13 @@ class App extends React.Component {
   }
 
   fetch() {
-    const env = process.env.aws ? process.env.aws : '';
+    // const env = process.env.aws ? process.env.aws : '';
     $.ajax({
-      url: `${env}/restaurants/${this.state.id}`,
+      url: `/restaurants/${this.state.id}/reviews`,
       method: 'GET',
       success: (data) => {
         this.setState({
-          data: data,
+          data,
         });
       },
       error: (error) => {
@@ -43,5 +45,10 @@ class App extends React.Component {
     );
   }
 }
+
+App.propTypes = {
+  id: PropTypes.number.isRequired,
+};
+
 
 export default App;

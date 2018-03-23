@@ -30,6 +30,7 @@ const mimeTypes = {
 const client = redis.createClient();
 
 const server = http.createServer((req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'GET' && req.url.startsWith('/restaurants')) {
     const id = Number(req.url.split('/')[2]);
     client.getAsync(id)
@@ -71,7 +72,7 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(nr);
+  console.log('NewRelic', nr.agent.config.license_key.slice(0, 10), '...');
   console.log('Server listening on', port);
 });
 
