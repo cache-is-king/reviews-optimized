@@ -12,7 +12,7 @@ bluebird.promisifyAll(redis.Multi.prototype);
 
 const port = process.env.PORT || 8081;
 
-const client = redis.createClient();
+const client = redis.createClient({ host: process.env.REDIS_HOST });
 
 const statistics = {
   cacheHit: 0,
