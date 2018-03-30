@@ -5,7 +5,7 @@ module.exports = {
   entry: path.resolve(__dirname, './react/src/production.jsx'),
   output: {
     path: path.resolve(__dirname, './react/dist'),
-    filename: 'bundle-prod.js',
+    filename: 'bundle-reviews.js',
   },
   plugins: [
     new Dotenv(),

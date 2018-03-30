@@ -1,16 +1,14 @@
 config:
   target: 'http://localhost:8081'
-  payload:
-    path: "./_data/attack.csv"
-    fields:
-      - "id"
   phases:
     -
       duration: 60
       arrivalCount: 6000
+  processor: "./artilleryFn.js"
 scenarios:
   - flow:
     - loop:
       - get:
-          url: "/restaurants/{{id}}"
+          url: "/restaurants/{{replace}}/reviews"
+          beforeRequest: "genRandom80"
       count: 10
